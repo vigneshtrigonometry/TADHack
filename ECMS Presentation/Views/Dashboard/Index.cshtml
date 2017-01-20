@@ -1,0 +1,72 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Dashboard/_Layout.cshtml";
+}
+
+@Html.Partial("_LeftPartialPage")
+<div id="optionsPane" class="col-md-offset-1">
+
+</div>
+<div id="contentPane" class="col-md-offset-2">
+
+</div>
+@Html.Partial("_VideoPartialPage");
+
+@section scripts
+{
+<script src="~/Scripts/jquery.unobtrusive-ajax.js"></script>
+<script src="~/Scripts/jquery.validate.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+    <script src="//cdn.temasys.com.sg/skylink/skylinkjs/0.6.x/skylink.complete.min.js"></script>
+    <script>
+        function Foo()
+        {
+            var skylink = new Skylink();
+
+            skylink.on('peerJoined', function (peerId, peerInfo, isSelf) {
+                if (isSelf) return; // We already have a video element for our video and don't need to create a new one.
+                var vid = document.createElement('video');
+                vid.autoplay = true;
+                vid.muted = true; // Added to avoid feedback when testing locally
+                vid.id = peerId;
+                document.body.appendChild(vid);
+            });
+
+
+            skylink.on('incomingStream', function (peerId, stream, isSelf) {
+                if (isSelf) return;
+                var vid = document.getElementById(peerId);
+                attachMediaStream(vid, stream);
+            });
+
+            skylink.on('peerLeft', function (peerId, peerInfo, isSelf) {
+                var vid = document.getElementById(peerId);
+                document.body.removeChild(vid);
+            });
+
+
+            skylink.on('mediaAccessSuccess', function (stream) {
+                var vid = document.getElementById('myvideo');
+                attachMediaStream(vid, stream);
+            });
+
+
+            skylink.init({
+                apiKey: 'INSERT_YOUR_KEY',
+                defaultRoom: 'myRoom'
+            }, function () {
+                skylink.joinRoom({
+                    audio: true,
+                    video: true
+                });
+            });
+        }
+       
+
+        $('#profilelink').click(function () {
+            $('#contentPane').load('@Url.Action("EditProfile")')
+            
+        })
+    </script>
+}
